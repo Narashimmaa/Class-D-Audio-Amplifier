@@ -1,0 +1,30 @@
+* triangle generator with preamp and mid-rail
+.param Vhi=10.5 Vlo=1.5
+.subckt OPA p n out
+Bo x 0 V = {(Vhi+Vlo)/2} + {(Vhi-Vlo)/2}*tanh({1e4/((Vhi-Vlo)/2)}*(V(p)-V(n)))
+Ro x o1 250
+Co o1 0 1n
+Bb out 0 V = V(o1)
+.ends
+
+Vcc vcc 0 DC 11.6
+R1 vcc m 10k
+R2 m 0 10k
+C2 m 0 10u
+XU1B m mid mid OPA
+XU1D pn12 mid sq OPA
+R7 sq pn12 22k
+R6 tri pn12 10k
+XU1C mid pn9 tri OPA
+R8 sq pn9 10k
+C4 pn9 tri 1n
+.ic v(tri)=6 v(sq)=10.5 v(pn9)=6 v(pn12)=7 v(mid)=6 v(m)=6
+.options reltol=0.002 method=gear
+.tran 20n 0.0004 0 20n uic
+.control
+set wr_singlescale
+set wr_vecnames
+run
+wrdata osc.txt v(sq) v(tri) v(mid)
+.endc
+.end

@@ -1,0 +1,29 @@
+* input network and preamp
+.param Vhi=10.5 Vlo=1.5
+.subckt OPA p n out
+Bo x 0 V = {(Vhi+Vlo)/2} + {(Vhi-Vlo)/2}*tanh({1e4/((Vhi-Vlo)/2)}*(V(p)-V(n)))
+Ro x o1 250
+Co o1 0 1n
+Bb out 0 V = V(o1)
+.ends
+
+Vmid mid 0 DC 6
+Vs sin 0 SIN(0 0.5 1k)
+R3 sin x 10k
+R4 sin x 10k
+Rp1 x w 3k
+Rp2 w 0 7k
+C3 w a 1u
+R5 a inv 10k
+RV2 aud inv 50k
+XU1A mid inv aud OPA
+.ic v(a)=6 v(inv)=6 v(aud)=6
+.options reltol=0.002 method=gear
+.tran 2u 0.006 0 2u uic
+.control
+set wr_singlescale
+set wr_vecnames
+run
+wrdata pre.txt v(w) v(aud)
+.endc
+.end

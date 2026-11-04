@@ -1,0 +1,44 @@
+* power stage: half-bridge, dead time, body diodes, LC filter, speaker
+.model SWQ SW(Vt=2.5 Vh=0.3 Ron=0.022 Roff=1e6)
+.model DBODY D(Is=1e-10 N=1.2 Rs=0.015 Cjo=300p Tt=60n)
+.model DSCH D(Is=3e-6 N=1.1 Rs=0.04 Cjo=100p)
+Vadp adp0 0 DC 12
+Radp adp0 adp 0.3
+D1 adp vcc DSCH
+C1 vcc c1x 470u
+Rc1 c1x 0 0.05
+Btri tri 0 V = 6 + 2.05*(2/pi)*asin(sin(2*pi*54945.0*time))
+Vaud aud 0 SIN(6 1.2 1k)
+BinH inH 0 V = 1/(1+exp(-60*(V(aud)-V(tri)-0.24)))
+BinL inL 0 V = 1/(1+exp(-60*(V(tri)-V(aud)-0.24)))
+BHO hoi sw V = 11.3*V(inH)
+Rho hoi ho 40
+BLO loi 0 V = V(vcc)*V(inL)
+Rlo loi lo 40
+R10 ho g1 10
+R11 lo g2 10
+Cgs1 g1 sw 1.6n
+Cgs2 g2 0 1.6n
+S1 vcc sw g1 sw SWQ
+Dq1 sw vcc DBODY
+Cq1 vcc sw 400p
+S2 sw 0 g2 0 SWQ
+Dq2 0 sw DBODY
+Cq2 sw 0 400p
+L1 sw l2 47u
+Rl l2 out 0.05
+C6 out c6x 1u
+Rc6 c6x 0 0.02
+C7 out c7a 1000u
+Rc7 c7a spk 0.05
+Rls spk 0 4
+.ic v(vcc)=11.6 v(adp)=11.9 v(out)=6 v(sw)=6 v(spk)=0 v(c7a)=0
+.options reltol=0.003 abstol=1n vntol=1u method=gear
+.tran 100n 0.0036 0 100n uic
+.control
+set wr_singlescale
+set wr_vecnames
+run
+wrdata power.txt v(aud) v(tri) v(sw) v(spk) v(out) v(g1) v(g2) v(vcc) i(Vadp) v(inH) v(inL)
+.endc
+.end

@@ -1,0 +1,4 @@
+# ngspice output files (large, regenerate with the netlists)
+simulation/*.txt
+*.raw
+*.log

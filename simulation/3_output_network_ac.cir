@@ -1,0 +1,17 @@
+* output network small-signal response, SW to speaker
+Vsw sw 0 DC 0 AC 1
+L1 sw l2 47u
+Rl l2 out 0.05
+C6 out c6x 1u
+Rc6 c6x 0 0.02
+C7 out c7a 1000u
+Rc7 c7a spk 0.05
+Rls spk 0 4
+.ac dec 100 10 1meg
+.control
+set wr_singlescale
+set wr_vecnames
+run
+wrdata ac.txt vdb(spk) vp(spk)
+.endc
+.end
